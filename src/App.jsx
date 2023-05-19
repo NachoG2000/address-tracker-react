@@ -1,64 +1,127 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import './App.css' 
 import { MapContainer, TileLayer, Marker} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import 'leaflet/dist/images/marker-shadow.png'
+import Menu from './Menu';
+import ErrorMenu from './ErrorMenu';
 
 import patternDesktop from './images/pattern-bg-desktop.png'
 import patternMobile from './images/pattern-bg-mobile.png'
-import Menu from './Menu';
 
 function App() {
- return (
-  <main className=' h-[100vh]'>
-    <Menu />
-    <img src={patternDesktop} alt="pattern" className='w-full h-[40vh] hidden sm:block'/>
-    <img src={patternMobile} alt="pattern" className='w-full h-[40vh] sm:hidden'/>
 
-    <MapContainer 
-      center={[51.505, -0.09]} 
-      zoom={13} 
-      style={{ height: '60vh', width: '100%'}} 
-      zoomControl={false}
-      doubleClickZoom= {false}
-      closePopupOnClick= {false} 
-      dragging= {false}
-      zoomSnap= {false} 
-      zoomDelta= {false} 
-      trackResize= {false}
-      scrollWheelZoom= {false}
-      touchZoom={false}
-      >
+  const [inputAddress, setinputAddress] = useState("")
+  const [submitInput, setSubmitInput] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("");
+  const [APIinfo, setAPIinfo] = useState(
+    {
+      ipAddress: "8.8.8.8",
+      city: "Mountain View",
+      region: "California",
+      postalCode: "94043",
+      timezone: "-07:00",
+      isp: "Google LLC",
+      lat: "37.40599",
+      lng: "-122.078514"
+    }
+  )
+  const [mapKey, setMapKey] = useState(0);
 
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
+  console.log(errorMessage)
+  useEffect(() => {
+    if (submitInput) {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(`https://geo.ipify.org/api/v2/country,city?apiKey=at_N1zI8j8Btmq8Dlk6GyKzeycdAlxTH&ipAddress=${inputAddress}`);
+          const data = await response.json();
+  
+          if (response.ok) {
+            setAPIinfo({
+              ipAddress: data.ip,
+              city: data.location.city,
+              region: data.location.region,
+              postalCode: data.location.postalCode,
+              timezone: data.location.timezone,
+              isp: data.isp,
+              lat: data.location.lat,
+              lng: data.location.lng
+            });
+            setErrorMessage("");
+          } else {
+            setErrorMessage("Invalid input address. Please try again.");
+          }
+        } catch (error) {
+          console.error(error);
+          setErrorMessage("An error occurred. Please try again later.");
+        } finally {
+          setSubmitInput(false);
+          setMapKey(prevKey => prevKey + 1);
+        }
+      };
+  
+      fetchData();
+    }
+  }, [submitInput, inputAddress]);
+
+  function onChange(event){
+    setinputAddress(event.target.value)
+  }
+
+  function onSumbit(){
+    if (inputAddress.trim() !== "") {
+      setSubmitInput(true);
+    } else {
+      setErrorMessage("Please enter an input address.");
+    }
+  }
+
+  function clearError(){
+    setErrorMessage("")
+  }
+
+  return (
+    <main className={`${errorMessage ? "fixed" : "" }`}>
+      <Menu 
+        handleChange={onChange}
+        handleSubmit={onSumbit}
+        APIinfo={APIinfo}
       />
-      <Marker position={[51.505, -0.09]} />
-    </MapContainer>
-  </main>
- )
+      {
+        errorMessage 
+        ?
+          <ErrorMenu errorMessage={errorMessage} clearError={clearError}/> 
+        :
+          ""
+      }
+
+      <img src={patternDesktop} alt="pattern" className='w-full h-[40vh] hidden sm:block'/>
+      <img src={patternMobile} alt="pattern" className='w-full h-[60vh] sm:hidden'/>
+
+      <MapContainer
+        key={mapKey}
+        center={[parseFloat(APIinfo.lat), parseFloat(APIinfo.lng)]}
+        zoom={13}
+        style={{ height: '100vh', width: '100%' }}
+        zoomControl={false}
+        doubleClickZoom={false}
+        closePopupOnClick={false}
+        dragging={false}
+        zoomSnap={false}
+        zoomDelta={false}
+        trackResize={false}
+        scrollWheelZoom={false}
+        touchZoom={false}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
+        />
+
+        <Marker position={[parseFloat(APIinfo.lat), parseFloat(APIinfo.lng)]} />
+      </MapContainer>
+    </main>
+  )
 }
 
 export default App
-
-// function App() {
-//   return (
-//     <div className="relative">
-//       <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '400px' }}>
-//         <TileLayer
-//           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//           attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
-//         />
-//       </MapContainer>
-
-//       <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full pointer-events-none">
-//         {/* Content on top of the map */}
-//         <div className="bg-white p-4 rounded-lg shadow">
-//           <h1 className="text-xl font-bold">Hello, World!</h1>
-//           <p>Some additional text here...</p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
