@@ -2,12 +2,13 @@ import React, {useState, useEffect} from 'react'
 import './App.css' 
 import { MapContainer, TileLayer, Marker} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
-import 'leaflet/dist/images/marker-shadow.png'
+import { Icon } from 'leaflet'
 import Menu from './Menu';
 import ErrorMenu from './ErrorMenu';
 
 import patternDesktop from './images/pattern-bg-desktop.png'
 import patternMobile from './images/pattern-bg-mobile.png'
+import locationIconSvg from './images/icon-location.svg'
 
 function App() {
 
@@ -16,7 +17,7 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [APIinfo, setAPIinfo] = useState(
     {
-      ipAddress: "8.8.8.8",
+      ipAddress: "122.122.122.122",
       city: "Mountain View",
       region: "California",
       postalCode: "94043",
@@ -27,8 +28,13 @@ function App() {
     }
   )
   const [mapKey, setMapKey] = useState(0);
+  
+  const locationIcon = new Icon({
+    iconUrl: locationIconSvg,
+    iconSize: [46,56]
+   })
 
-  console.log(errorMessage)
+  console.log(inputAddress)
   useEffect(() => {
     if (submitInput) {
       const fetchData = async () => {
@@ -78,11 +84,13 @@ function App() {
 
   function clearError(){
     setErrorMessage("")
+    setinputAddress("")
   }
 
   return (
-    <main className={`${errorMessage ? "fixed" : "" }`}>
+    <main className={`${errorMessage ? "" : "" }`}>
       <Menu 
+        inputAddress={inputAddress}
         handleChange={onChange}
         handleSubmit={onSumbit}
         APIinfo={APIinfo}
@@ -118,7 +126,7 @@ function App() {
           attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
         />
 
-        <Marker position={[parseFloat(APIinfo.lat), parseFloat(APIinfo.lng)]} />
+        <Marker position={[parseFloat(APIinfo.lat), parseFloat(APIinfo.lng)]} icon={locationIcon}/>
       </MapContainer>
     </main>
   )

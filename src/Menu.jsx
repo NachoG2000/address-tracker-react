@@ -4,6 +4,7 @@ import arrow from "./images/icon-arrow.svg"
 function Menu(props) {
 
 //   const [isHovered, setIsHovered] = useState(true)
+  const [inputAddress, setInputAddress] = useState('');
 
   return (
     <div className='absolute z-40 top-1/2 sm:top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80%]'>
@@ -16,8 +17,8 @@ function Menu(props) {
                     className="bg-white rounded-s-xl h-[50px] w-[220px] sm:w-[500px] px-4 focus:outline-none"
                     placeholder="Search for any IP address or domain"
                     onChange={props.handleChange}
-                    name="inputAdress"
-                value={props.inputAdress}
+                    name="inputAddress"
+                    value={props.inputAddress || inputAddress}
                 />
                 <button
                     type="submit"
