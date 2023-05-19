@@ -17,7 +17,7 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [APIinfo, setAPIinfo] = useState(
     {
-      ipAddress: "122.122.122.122",
+      ipAddress: "8.8.8.8",
       city: "Mountain View",
       region: "California",
       postalCode: "94043",
