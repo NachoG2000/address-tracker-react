@@ -34,7 +34,36 @@ function App() {
     iconSize: [46,56]
    })
 
-  console.log(inputAddress)
+  useEffect(() => {
+    const fetchIpAddress = async () => {
+    try {
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    
+    const ip = data.ip
+    const response2 = await fetch(`https://geo.ipify.org/api/v2/country,city?apiKey=at_N1zI8j8Btmq8Dlk6GyKzeycdAlxTH&ipAddress=${ip}`);
+    const data2 = await response2.json();
+   
+    setAPIinfo({
+    ipAddress: data2.ip,
+    city: data2.location.city,
+    region: data2.location.region,
+    postalCode: data2.location.postalCode,
+    timezone: data2.location.timezone,
+    isp: data2.isp,
+    lat: data2.location.lat,
+    lng: data2.location.lng
+    });
+    setMapKey(prevKey => prevKey + 1);  
+   
+    } catch (error) {
+    console.error(error);
+    }
+    };
+    
+    fetchIpAddress();
+    }, []);   
+
   useEffect(() => {
     if (submitInput) {
       const fetchData = async () => {
@@ -133,3 +162,34 @@ function App() {
 }
 
 export default App
+
+
+
+  // useEffect(() => {
+  //   const fetchIpAddress = async () => {
+  //     try {
+  //       const response = await fetch("https://api.ipify.org?format=json");
+  //       const data = await response.json();
+        
+  //       const ip = data.ip
+  //       const response2 = await fetch(`https://geo.ipify.org/api/v2/country,city?apiKey=at_N1zI8j8Btmq8Dlk6GyKzeycdAlxTH&ipAddress=${data.ip}`);
+  //       const data2 = await response.json();
+
+  //       setAPIinfo({
+  //         ipAddress: data2.ip,
+  //         city: data2.location.city,
+  //         region: data2.location.region,
+  //         postalCode: data2.location.postalCode,
+  //         timezone: data2.location.timezone,
+  //         isp: data2.isp,
+  //         lat: data2.location.lat,
+  //         lng: data2.location.lng
+  //       });
+
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+    
+  //   fetchIpAddress();
+  // }, []);
